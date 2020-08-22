@@ -43,16 +43,13 @@ This program is to describe the band diagram for enlarged unit cell
  basis is sigma tau mu s
 """
 
-class Hamiltonian(object):
+class Hamiltonian():
     def __init__(self):
         pass
 
-    def HamiltonMatrix(self):
-        '''
-
-        :return:
-        '''
+    def HamiltonianMatrix(self):
         pass
+
 
 
 class Henlarge(Hamiltonian):
@@ -63,20 +60,24 @@ class Henlarge(Hamiltonian):
     16 by 16 matrix
     """
 
-    #KE term
-    hamilType="tr"
-    def __init__(self, type='tr/untr'):
+    hamilType="trivial"
+    x_range = pi
+    dim = 16
+    x_range = pi
+    r_range = pi / sqrt(2)
+    def __init__(self, type='trivial'):
         '''
-        :param type: tr/untr
+        :param type: trivial/topological
         '''
-        self.dim = 16
-        self.x_range = pi/sqrt(2)
-        self.r_range = pi
-        if type.lower() == 'tr':
-            self.hamilType='tr'
+
+        if type.lower() == 'trivial':
+            self.hamilType='trivial'
         else:
-            if type.lower() == "untr":
-                self.hamilType='untr'
+            if type.lower() == "topological":
+                self.hamilType='topological'
+
+
+    #KE term
 
 
     def HZA1(self, kz):
@@ -528,38 +529,28 @@ class Henlarge(Hamiltonian):
         """
         return self.HZA1(kz) + self.H3(kr, ks, kz) + self.HZA4(kr, ks) + gap  * self.dHtri()
 
-    def HamiltonMatrix(self,spaciaPos=[],gap=1):
-        '''
+    def HamiltonianMatrix(self,spacialPos=[0,0,0],gap=0):
+        if len(spacialPos) != 3:
+            raise TypeError
 
-        :param spaciaPos: 3D position [kr,ks,kz]
-        :param gap:   gap
-        :return: Hamiltonian matrix
-        '''
-
-        if self.hamilType == "tr":
-            pass
-        else:
-            pass
-        return None
-        pass
+        if self.hamilType == "trivial":
+            return self.Htri(kr=spacialPos[0], ks=spacialPos[1], kz=spacialPos[2], gap=gap)
+        elif self.hamilType == "topological":
+            return self.Hz(kr=spacialPos[0], ks=spacialPos[1], kz=spacialPos[2], gap=gap)
 
 
-
-
-
-
-
-
-class Horiginal(object):
+class Horiginal(Hamiltonian):
     '''
     Hamiltonian in original unit cell
     8 by 8 matrix
     '''
 
+    dim = 8
+    x_range = pi
+    r_range = sqrt(2) * pi
+
     def __init__(self):
-        self.dim = 8
-        self.x_range = pi
-        self.r_range = sqrt(2) * pi
+        pass
 
     # KE term
     def HZA1(self, kz):
@@ -579,10 +570,17 @@ class Horiginal(object):
         g += sin(kx * a) * G8[1][3][1] - sin(ky * a) * G8[1][3][2]
         return 0.5 * g
 
-    def Hxy(self, kx, ky, kz, gap):
+    def Hxy(self, kr, ks, kz, gap):
         """
         The topological Hamiltonian with spin in xy plane.
         The intra and inter mass terms are included
         """
+        kx = 1.0/sqrt(2)*(kr+ks)
+        ky = 1.0/sqrt(2)*(-kr+ks)
         return self.HZA1(kz) + self.H3(kx, ky, kz) + self.HZA4(kx, ky) + gap * self.dHtopxy(kx, ky)
+
+    def HamiltonianMatrix(self, spacialPos=[0, 0, 0], gap=0):
+        if len(spacialPos) != 3:
+            raise TypeError
+        return self.Hxy(kr=spacialPos[0], ks=spacialPos[1], kz=spacialPos[2], gap=gap)
 

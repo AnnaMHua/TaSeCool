@@ -9,49 +9,55 @@ from matplotlib.animation import FuncAnimation
 import TaSeHamiltonian as TaSe
 
 
+#parameters
+a, c, v0, u1, u1t, u2 = TaSe.a, TaSe.c, TaSe.v0, TaSe.u1, TaSe.u1t, TaSe.u2
+
 class bandAnimation2D(object):
     '''
 
     '''
 
     fig = plt.figure()
-    ax = plt.axes(xlim=(-pi, pi), ylim=(-6, 6))
+    ax = plt.axes(xlim=(-pi, pi), ylim=(-40, 40))
     line, = ax.plot([], [], lw=1)
     lines = [plt.plot([], [])[0] for _ in range(16)]
-    plt.title( "kz=0 ,"+"dHz: v0="+str(v0)+", u1="+str(u1)+", u1t="+str(u1t)+", u2="+str(u2))
+
     wrt= ax.text(0.5,0.8,"gap=0")
 
-    def __init__(self):
+    def __init__(self,HAB=TaSe.Horiginal()):
         self.ax.set_xlabel("kx")
-        pass
+        self.HAB = HAB
+        self.dim = HAB.dim
+        self.xrange = HAB.x_range
+        self.rrange = HAB.r_range
 
-    def Get32D(self,a=TaSe.Henlarge,arg=[]):
-        a=TaSe.Henlarge("tr")
-        a.HamiltonMatrix()
-        result=a.Hum(arg[1],arg[0])
+        self.kz = pi
+        self.ks = 0
+        self.ky = 0
+        pass
 
     def animatekx(self,i):
         numpoints = 200
-        kxdata = np.linspace(-pi,pi,numpoints)
+        kxdata = np.linspace(-self.xrange,self.xrange,numpoints)
         val = []
-        self.wrt.set_text("gap="+str(i*0.1))
+        self.wrt.set_text("gap="+str(i))
         for kx in kxdata:
-            val.append(la.eigvalsh(HAB(kx,0, 0, 0.1*i)))
+            val.append(la.eigvalsh(self.HAB.HamiltonianMatrix([1.0/sqrt(2)*(kx - self.ky), 1.0/sqrt(2)*(kx + self.ky), self.kz], i)))
         val = np.array(val)
-        for ith in range(8):
+        for ith in range(self.dim):
             eigen=[item[ith] for item in val]
             self.lines[ith].set_data(kxdata,eigen)
         return tuple(self.lines)+(self.wrt,)
 
     def animatekr(self,i):
         numpoints = 200
-        krdata = np.linspace(-pi/sqrt(2),pi/sqrt(2),numpoints)
+        krdata = np.linspace(-self.rrange,self.rrange,numpoints)
         val = []
-        self.wrt.set_text("gap=" + str(i * 0.1))
+        self.wrt.set_text("gap=" + str(i ))
         for kr in krdata:
-            val.append(la.eigvalsh(HAB(kr,0, 0,0.1*i)))
+            val.append(la.eigvalsh(self.HAB.HamiltonianMatrix([kr,0, self.kz] ,i)))
         val = np.array(val)
-        for ith in range(8):
+        for ith in range(self.dim):
             eigen=[item[ith] for item in val]
             self.lines[ith].set_data(krdata,eigen)
         return tuple(self.lines)+(self.wrt,)
@@ -61,18 +67,16 @@ class bandAnimation2D(object):
         numpoints = 200
         kzdata = np.linspace(-pi,pi,numpoints)
         val = []
-        self.wrt.set_text("gap=" + str(i * 0.1))
+        self.wrt.set_text("gap=" + str(i))
         for kz in kzdata:
-            val.append(la.eigvalsh(HAB(0,0, kz,0.1*i)))
+            val.append(la.eigvalsh(self.HAB.HamiltonianMatrix([0,0, self.kz],i)))
         val = np.array(val)
-        for ith in range(8):
+        for ith in range(self.dim):
             eigen=[item[ith] for item in val]
             self.lines[ith].set_data(kzdata,eigen)
         return tuple(self.lines)+(self.wrt,)
 
 
-    def _dataGenerator(self):
-        pass
 
     def GetAnimation(self, animateTerm="kx", saveName=''):
         '''
@@ -83,17 +87,20 @@ class bandAnimation2D(object):
             anim = FuncAnimation(self.fig, self.animatekx, frames=np.linspace(0,30,60), interval=20,blit=True)
 
         if 'kr' in animateTerm:
-            anim = FuncAnimation(self.fig, self.animatekr, frames=np.linspace(0, 70, 70), interval=20, blit=True)
+            anim = FuncAnimation(self.fig, self.animatekr, frames=np.linspace(0, 20, 70), interval=20, blit=True)
 
         if 'kz' in animateTerm:
-            anim = FuncAnimation(self.fig, self.animatekz, frames=np.linspace(0, 3, 60), interval=20, blit=True)
+            anim = FuncAnimation(self.fig, self.animatekz, frames=np.linspace(0, 30, 60), interval=20, blit=True)
+        plt.title("kz="+str(self.kz) + ",dHz: v0=" + str(v0) + ", u1=" + str(u1) + ", u1t=" + str(u1t) + ", u2=" + str(u2))
         plt.show()
+
         if saveName:
             anim.save(saveName)
 
 
 if __name__ == '__main__':
-    H=TaSe.Henlarge()
-    a=bandAnimation2D()
-    a.cal
+    test = TaSe.Henlarge("topological")
+    print(test.hamilType)
+    animate = bandAnimation2D(test)
+    animate.GetAnimation(animateTerm="kx")
 
