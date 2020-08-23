@@ -1,0 +1,28 @@
+{
+  "runConfig": {
+    "savefolder": "",
+    "useSysCores": true,
+    "ncore": 10,
+    "resultFname": "test.json"
+  },
+  "kzScan": {
+    "min": 0,
+    "nbin":10,
+    "max": 10
+  },
+  "ksScan": {
+    "min": 0,
+    "nbin":10,
+    "max": 10
+  },
+  "krScan": {
+    "min": 0,
+    "nbin":10,
+    "max": 10
+  },
+  "gapScan": {
+    "min": 0,
+    "nbin":10,
+    "max": 10
+  }
+}

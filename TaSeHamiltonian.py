@@ -51,7 +51,6 @@ class Hamiltonian():
         pass
 
 
-
 class Henlarge(Hamiltonian):
     """
     Hamiltonian in enlarged unit cell
