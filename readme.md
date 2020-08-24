@@ -51,4 +51,4 @@ Result_%Y_%m_%d_%H_%m_%s.json
 ```
 It is json farmat, the key is the result ID. 
 
-![gohoos](resource/C69sVRjWYAIPFS1.png  | width=100)
+<img src="https://github.com/AnnaMHua/TaSeCool/blob/master/resource/C69sVRjWYAIPFS1.png?raw=true" width="300">
