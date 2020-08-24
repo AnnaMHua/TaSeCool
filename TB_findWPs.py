@@ -16,6 +16,8 @@ from multiprocessing.pool import ThreadPool
 import multiprocessing
 import  logging
 import datetime
+from math import cos, sin, sqrt, pi
+
 
 logger=logging.getLogger(__name__)
 logger.setLevel(0)
@@ -32,19 +34,19 @@ class WireFinder(object):
     #Scan range
     krScanMin=0
     krScanNBin=100
-    krScanMax = math.pi
+    krScanMax = pi/sqrt(2)
 
     ksScanMin = 0
     ksScanNBin = 100
-    ksScanMax = math.pi
+    ksScanMax = pi/sqrt(2)
 
     kzScanMin = 0
-    kzScanNBin = 10
-    kzScanMax = math.pi
+    kzScanNBin = 100
+    kzScanMax = pi
 
     gapScanMin = 0
-    gapScanNBin = 10
-    gapScanMax = math.pi
+    gapScanNBin = 2
+    gapScanMax = pi
 
     def __init__(self):
         pass
@@ -80,7 +82,7 @@ class WireFinder(object):
         val = la.eigvalsh(TaseCal.HamiltonianMatrix(spacialPos=SpacialPos,gap=gap))
 
         d = val[4] - val[3]
-        if d < 1:
+        if d < 0.01:
             return {"Pos":SpacialPos,"gap":gap,"HamiVal":val.tolist()}
         return None
 
