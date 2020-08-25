@@ -1,7 +1,7 @@
 {
   "runConfig": {
     "savefolder": "",
-    "useSysCores": true,
+    "useSysCores": false,
     "ncore": 10,
     "resultFname": "test.json"
   },

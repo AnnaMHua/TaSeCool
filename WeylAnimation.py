@@ -9,7 +9,7 @@ y = [0]
 z = [0]
 
 
-with open("./result/Result_2020_08_23_18_08_1598222370.json") as f:
+with open("Result_2020_08_25_17_08_1598392711.json") as f:
     data = json.load(f)
     dic = {}
     gapArray=[]

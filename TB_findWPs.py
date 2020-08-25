@@ -43,21 +43,21 @@ class WireFinder(object):
     ksScanMax = pi/sqrt(2)
 
     kzScanMin = 0
-    kzScanNBin = 10
+    kzScanNBin = 100
     kzScanMax = pi
 
     gapScanMin = 0
-    gapScanNBin = 10
-    gapScanMax = pi
+    gapScanNBin = 20
+    gapScanMax = 60
 
+    saveFname=""
     _finishedWorkCount=0
     _finishedWorkCount_Update = 0
 
     _progressBarArray={}
 
-    def __init__(self):
-        self.LoadRunConfig()
 
+    def __init__(self):
         if os.path.isfile("./resource/deve.infor"):
             with open("./resource/deve.infor",encoding="utf8") as infor:
                 chatInfor=infor.read()
@@ -82,17 +82,21 @@ class WireFinder(object):
                 else:
                     self.MaximumThread=int((data["runConfig"]["ncore"]))
                     logger.debug("Use User input CPU_COUNT :{}".format(self.MaximumThread))
-                # print(data)
+
+                self.gapScanMin = data["gapScan"]["min"]
+                self.gapScanMax = data["gapScan"]["max"]
+                self.gapScanNBin = data["gapScan"]["nbin"]
+
         else:
             raise IOError("Config file: {} CAN NOT FIND".format(fname))
 
         # self.krScanMin=float(data["krScan"]["min"])
 
     def HamiSingleScaner(self, SpacialPos=[],gap=1.0):
-        TaseCal=Tase.Horiginal()
+        TaseCal=Tase.Henlarge("topological")
         val = la.eigvalsh(TaseCal.HamiltonianMatrix(spacialPos=SpacialPos,gap=gap))
 
-        d = val[4] - val[3]
+        d = val[8] - val[7]
         if d < 0.01:
             return {"Pos":SpacialPos,"gap":gap,"HamiVal":val.tolist()}
         return None
@@ -129,7 +133,6 @@ class WireFinder(object):
                         if result :
                             ScanResult.append(result)
 
-                        # if _callBack:
                 self._threadCallBack(int(processID),totalCount)
 
         self._finishedWorkCount=self._finishedWorkCount+1
@@ -252,7 +255,6 @@ class WireFinder(object):
             gapScanBin.append(gapRange)
 
         # start thread pool
-        # print("kr: {}, ks: {}, kz: {},  gap: {} ".format(len(krScanBin),len(ksScanBin),len(kzScanBin),len(gapScanBin)))
         logger.debug("kr: {}, ks: {}, kz: {},  gap: {} ".format(len(krScanBin),len(ksScanBin),len(kzScanBin),len(gapScanBin)))
 
         # multi thread scanner
@@ -280,7 +282,7 @@ class WireFinder(object):
 
 if __name__ == '__main__':
     test=WireFinder()
-    # test.LoadRunConfig()
+    test.LoadRunConfig()
     test.MTHamiScanner()
 
 
