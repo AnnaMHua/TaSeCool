@@ -1,5 +1,7 @@
 import numpy as np
 from math import cos, sin, sqrt, pi
+from numpy import linalg as la
+
 
 sx = np.array([[0,1],[1,0]])
 sy = np.array([[0,-1j],[1j,0]])
@@ -9,7 +11,7 @@ sn = sx+sy
 snt = sx-sy
 
 #parameters
-a, c, v0, u1, u1t, u2 = 1.0, 1.0, 10, 10, 20, 10
+a, c, v0, u1, u1t, u2 = 1.0, 1.0, 1, 1, 2, 1
 
 mu = np.array([[u1,0],[0,u1t]])
 mut = np.array([[u1t,0],[0,u1]])
@@ -583,3 +585,5 @@ class Horiginal(Hamiltonian):
             raise TypeError
         return self.Hxy(kr=spacialPos[0], ks=spacialPos[1], kz=spacialPos[2], gap=gap)
 
+if __name__ == '__main__':
+    print(la.eigvalsh(Henlarge(type='topological').HamiltonianMatrix()))

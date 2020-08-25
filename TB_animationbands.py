@@ -2,9 +2,6 @@ import numpy as np
 from numpy import linalg as la
 from math import sqrt, pi
 import matplotlib.pyplot as plt
-from matplotlib import cm
-from mpl_toolkits.mplot3d import Axes3D
-from scipy.linalg import block_diag
 from matplotlib.animation import FuncAnimation
 import TaSeHamiltonian as TaSe
 
@@ -18,14 +15,15 @@ class bandAnimation2D(object):
     '''
 
     fig = plt.figure()
-    ax = plt.axes(xlim=(-pi, pi), ylim=(-40, 40))
+    ax = plt.axes()
+    # ax = plt.axes(xlim=(-pi, pi), ylim=(-40, 40))
     line, = ax.plot([], [], lw=1)
     lines = [plt.plot([], [])[0] for _ in range(16)]
 
     wrt= ax.text(0.5,0.8,"gap=0")
 
     def __init__(self,HAB=TaSe.Horiginal()):
-        self.ax.set_xlabel("kx")
+
         self.HAB = HAB
         self.dim = HAB.dim
         self.xrange = HAB.x_range
@@ -37,6 +35,9 @@ class bandAnimation2D(object):
         pass
 
     def animatekx(self,i):
+        self.ax.set_xlabel("kx(ky="+str(self.ky)+")")
+        plt.xlim(-self.xrange,self.xrange)
+        plt.ylim(-40, 40)
         numpoints = 200
         kxdata = np.linspace(-self.xrange,self.xrange,numpoints)
         val = []
@@ -51,6 +52,9 @@ class bandAnimation2D(object):
 
     def animatekr(self,i):
         numpoints = 200
+        plt.xlim(-self.rrange, self.rrange)
+        plt.ylim(-40,40)
+        self.ax.set_xlabel("kr(ks=" + str(self.ks) + ")")
         krdata = np.linspace(-self.rrange,self.rrange,numpoints)
         val = []
         self.wrt.set_text("gap=" + str(i ))
@@ -63,8 +67,10 @@ class bandAnimation2D(object):
         return tuple(self.lines)+(self.wrt,)
 
     def animatekz(self,i):
-
+        self.ax.set_xlabel("kz")
         numpoints = 200
+        plt.xlim(-pi, pi)
+        plt.ylim(-40, 40)
         kzdata = np.linspace(-pi,pi,numpoints)
         val = []
         self.wrt.set_text("gap=" + str(i))
@@ -78,29 +84,33 @@ class bandAnimation2D(object):
 
 
 
-    def GetAnimation(self, animateTerm="kx", saveName=''):
+    def GetAnimation(self, animateTerm="kx", save=False):
         '''
         animateTerm : kx, kr, kz
         '''
         animateTerm.lower()
         if 'kx' in animateTerm:
             anim = FuncAnimation(self.fig, self.animatekx, frames=np.linspace(0,30,60), interval=20,blit=True)
+            saveName = './result/plotkx.mp4'
 
         if 'kr' in animateTerm:
-            anim = FuncAnimation(self.fig, self.animatekr, frames=np.linspace(0, 20, 70), interval=20, blit=True)
+            anim = FuncAnimation(self.fig, self.animatekr, frames=np.linspace(0, 10, 40), interval=20, blit=True)
+            saveName = './result/plotkr.mp4'
 
         if 'kz' in animateTerm:
             anim = FuncAnimation(self.fig, self.animatekz, frames=np.linspace(0, 30, 60), interval=20, blit=True)
+            saveName = './result/plotkz.mp4'
         plt.title("kz="+str(self.kz) + ",dHz: v0=" + str(v0) + ", u1=" + str(u1) + ", u1t=" + str(u1t) + ", u2=" + str(u2))
         plt.show()
 
-        if saveName:
+        if save:
             anim.save(saveName)
 
 
 if __name__ == '__main__':
-    test = TaSe.Henlarge("topological")
+    test = TaSe.Henlarge("trivial")
     print(test.hamilType)
     animate = bandAnimation2D(test)
-    animate.GetAnimation(animateTerm="kx")
+    print(animate.rrange)
+    animate.GetAnimation(animateTerm='kz')
 

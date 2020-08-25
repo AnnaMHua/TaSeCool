@@ -1,8 +1,8 @@
 {
   "runConfig": {
     "savefolder": "",
-    "useSysCores": true,
-    "ncore": 10,
+    "useSysCores": false,
+    "ncore": 20,
     "resultFname": "test.json"
   },
   "kzScan": {
