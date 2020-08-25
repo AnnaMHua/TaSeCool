@@ -43,7 +43,7 @@ source venv/bin/activate
 
 python TB_findWPs.py
 ```
-![](resource/Screenshot from 2020-08-25 16-20-02.png)
+![](resource/Screenshot_coccurent.png)
 
 #### result 
 
