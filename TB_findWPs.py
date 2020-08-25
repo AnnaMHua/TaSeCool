@@ -18,6 +18,7 @@ import  logging
 import datetime
 from math import cos, sin, sqrt, pi
 
+from tqdm import *
 
 logger=logging.getLogger(__name__)
 logger.setLevel(0)
@@ -29,6 +30,7 @@ class WireFinder(object):
 
     #Multi-Thread setting
     MaximumThread=10
+    MaximumJobs=20    # how many sub jobs
     useSysCores=True  # use system detected number of cores instead of user specified
 
     #Scan range
@@ -41,29 +43,38 @@ class WireFinder(object):
     ksScanMax = pi/sqrt(2)
 
     kzScanMin = 0
-    kzScanNBin = 100
+    kzScanNBin = 10
     kzScanMax = pi
 
     gapScanMin = 0
-    gapScanNBin = 100
+    gapScanNBin = 10
     gapScanMax = pi
 
+    _finishedWorkCount=0
+    _finishedWorkCount_Update = 0
+
+    _progressBarArray={}
+
     def __init__(self):
-        pass
+        self.LoadRunConfig()
+
+        if os.path.isfile("./resource/deve.infor"):
+            with open("./resource/deve.infor",encoding="utf8") as infor:
+                chatInfor=infor.read()
+            print(chatInfor)
 
     def LoadRunConfig(self,fname="runConfig.json"):
         if os.path.isfile(fname):
             with open(fname) as fileIO:
                 data=json.load(fileIO)
-
                 try:
                     self.useSysCores=bool(data["runConfig"]["useSysCores"])
-                    print(self.useSysCores)
+                    # print(self.useSysCores)
                 except:
                     logger.info("Can not find \'runConfig.useSysCores, using default Value \'")
 
                 if self.useSysCores:
-                    self.MaximumThread=multiprocessing.cpu_count()*2
+                    self.MaximumThread=multiprocessing.cpu_count()
                     logger.debug("Auto Detector System CPU_COUNT :{}".format(self.MaximumThread))
                     if self.MaximumThread < 2:
                         self.MaximumThread=2
@@ -71,7 +82,7 @@ class WireFinder(object):
                 else:
                     self.MaximumThread=int((data["runConfig"]["ncore"]))
                     logger.debug("Use User input CPU_COUNT :{}".format(self.MaximumThread))
-                print(data)
+                # print(data)
         else:
             raise IOError("Config file: {} CAN NOT FIND".format(fname))
 
@@ -86,8 +97,28 @@ class WireFinder(object):
             return {"Pos":SpacialPos,"gap":gap,"HamiVal":val.tolist()}
         return None
 
-    def HamiScaner(self, krArray=[],ksArrary=[],kzArrary=[], gapArray =[]):
+    def _threadCallBack(self, threadID,totalCount):
+
+        if not 0 in self._progressBarArray.keys():
+            self._progressBarArray[0] = tqdm(total=self.MaximumJobs, position=0)
+            self._progressBarArray[0].set_description("Total Jobs Process ")
+        if self._finishedWorkCount > self._finishedWorkCount_Update:
+            self._progressBarArray[0].update(self._finishedWorkCount-self._finishedWorkCount_Update)
+            self._finishedWorkCount_Update=self._finishedWorkCount
+
+        if not threadID in self._progressBarArray.keys():
+            self._progressBarArray[threadID]=tqdm(total=totalCount,position=threadID+1)
+            self._progressBarArray[threadID].set_description("subProcess{:4} ".format(threadID))
+        self._progressBarArray[threadID].update(1)
+        self._progressBarArray[threadID].refresh()
+
+    def HamiScaner(self, krArray=[],ksArrary=[],kzArrary=[], gapArray =[],_callBack=None):
         ###
+
+        counter=0
+        totalCount=len(krArray)*len(ksArrary)
+        processID=multiprocessing.Process().name.split('-')[-1]
+
         ScanResult=[]
         for kr in krArray:
             for ks in ksArrary:
@@ -97,6 +128,11 @@ class WireFinder(object):
                         result = self.HamiSingleScaner(SpacialPos=SpacialPos,gap=gap)
                         if result :
                             ScanResult.append(result)
+
+                        # if _callBack:
+                self._threadCallBack(int(processID),totalCount)
+
+        self._finishedWorkCount=self._finishedWorkCount+1
         return ScanResult
 
     def MT_PostProcess(self,result=[]):
@@ -143,8 +179,8 @@ class WireFinder(object):
         gapRange = np.linspace(self.gapScanMin, self.gapScanMax, self.gapScanNBin)
 
         if self.krScanNBin >= max(NBinVal):
-            if max(NBinVal) >= 2*self.MaximumThread:
-                nbin= int(max(NBinVal)/self.MaximumThread)
+            if max(NBinVal) >= 2*self.MaximumJobs:
+                nbin= int(max(NBinVal)/self.MaximumJobs)
                 startIndex=0
                 endIndex=len(krRange)
                 for x in range(0, endIndex,nbin):
@@ -160,8 +196,8 @@ class WireFinder(object):
                     krScanBin.append([item])
 
         elif self.ksScanNBin >= max(NBinVal):
-            if max(NBinVal) >= 2*self.MaximumThread:
-                nbin= int(max(NBinVal)/self.MaximumThread)
+            if max(NBinVal) >= 2*self.MaximumJobs:
+                nbin= int(max(NBinVal)/self.MaximumJobs)
                 startIndex=0
                 endIndex=len(ksRange)
                 for x in range(0, endIndex,nbin):
@@ -176,8 +212,8 @@ class WireFinder(object):
                     ksScanBin.append([item])
 
         elif self.kzScanNBin >= max(NBinVal):
-            if max(NBinVal) >= 2 * self.MaximumThread:
-                nbin = int(max(NBinVal) / self.MaximumThread)
+            if max(NBinVal) >= 2 * self.MaximumJobs:
+                nbin = int(max(NBinVal) / self.MaximumJobs)
                 startIndex = 0
                 endIndex = len(kzRange)
                 for x in range(0, endIndex, nbin):
@@ -191,8 +227,8 @@ class WireFinder(object):
                 for item in krRange:
                     kzScanBin.append([item])
         elif self.gapScanNBin >= max(NBinVal):
-            if max(NBinVal) >= 2 * self.MaximumThread:
-                nbin = int(max(NBinVal) / self.MaximumThread)
+            if max(NBinVal) >= 2 * self.MaximumJobs:
+                nbin = int(max(NBinVal) / self.MaximumJobs)
                 startIndex = 0
                 endIndex = len(gapRange)
                 for x in range(0, endIndex, nbin):
@@ -216,7 +252,7 @@ class WireFinder(object):
             gapScanBin.append(gapRange)
 
         # start thread pool
-        print("kr: {}, ks: {}, kz: {},  gap: {} ".format(len(krScanBin),len(ksScanBin),len(kzScanBin),len(gapScanBin)))
+        # print("kr: {}, ks: {}, kz: {},  gap: {} ".format(len(krScanBin),len(ksScanBin),len(kzScanBin),len(gapScanBin)))
         logger.debug("kr: {}, ks: {}, kz: {},  gap: {} ".format(len(krScanBin),len(ksScanBin),len(kzScanBin),len(gapScanBin)))
 
         # multi thread scanner
@@ -238,15 +274,13 @@ class WireFinder(object):
 
         self.MT_PostProcess(result=result)
 
-
-
     def tester(self):
         pass
 
 
 if __name__ == '__main__':
     test=WireFinder()
-    test.LoadRunConfig()
+    # test.LoadRunConfig()
     test.MTHamiScanner()
 
 
