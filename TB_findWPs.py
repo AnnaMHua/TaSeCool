@@ -45,7 +45,7 @@ class WireFinder(object):
     kzScanMax = pi
 
     gapScanMin = 0
-    gapScanNBin = 2
+    gapScanNBin = 100
     gapScanMax = pi
 
     def __init__(self):
@@ -63,7 +63,7 @@ class WireFinder(object):
                     logger.info("Can not find \'runConfig.useSysCores, using default Value \'")
 
                 if self.useSysCores:
-                    self.MaximumThread=multiprocessing.cpu_count()
+                    self.MaximumThread=multiprocessing.cpu_count()*2
                     logger.debug("Auto Detector System CPU_COUNT :{}".format(self.MaximumThread))
                     if self.MaximumThread < 2:
                         self.MaximumThread=2
