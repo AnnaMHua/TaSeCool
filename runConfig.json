@@ -2,7 +2,7 @@
   "runConfig": {
     "savefolder": "",
     "useSysCores": false,
-    "ncore": 10,
+    "ncore": 8,
     "resultFname": "test.json"
   },
   "kzScan": {
@@ -22,7 +22,7 @@
   },
   "gapScan": {
     "min": 0,
-    "nbin":10,
-    "max": 10
+    "nbin":50,
+    "max": 200
   }
 }

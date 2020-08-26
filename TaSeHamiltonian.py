@@ -11,7 +11,7 @@ sn = sx+sy
 snt = sx-sy
 
 #parameters
-a, c, v0, u1, u1t, u2 = 1.0, 1.0, 10, 10, 20, 10
+a, c, v0, u1, u1t, u2 = 1.0, 1.0, 100, 100, 200, 100
 
 mu = np.array([[u1,0],[0,u1t]])
 mut = np.array([[u1t,0],[0,u1]])

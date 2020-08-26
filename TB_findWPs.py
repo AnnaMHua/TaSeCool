@@ -9,6 +9,7 @@ from typing import IO
 import TaSeHamiltonian as Tase
 from numpy import linalg as la
 import os
+import sys
 import json
 import math
 import numpy as np
@@ -29,8 +30,8 @@ class WireFinder(object):
     '''
 
     #Multi-Thread setting
-    MaximumThread=10
-    MaximumJobs=20    # how many sub jobs
+    MaximumThread=8
+    MaximumJobs=8    # how many sub jobs
     useSysCores=True  # use system detected number of cores instead of user specified
 
     #Scan range
@@ -47,8 +48,8 @@ class WireFinder(object):
     kzScanMax = pi
 
     gapScanMin = 0
-    gapScanNBin = 20
-    gapScanMax = 60
+    gapScanNBin = 50
+    gapScanMax = 200
 
     saveFname=""
     _finishedWorkCount=0
@@ -89,17 +90,27 @@ class WireFinder(object):
 
         else:
             raise IOError("Config file: {} CAN NOT FIND".format(fname))
+        # print(data)
 
         # self.krScanMin=float(data["krScan"]["min"])
+
+    # def HamiSingleScaner(self, SpacialPos=[],gap=1.0):
+    #     TaseCal=Tase.Henlarge("topological")
+    #     val = la.eigvalsh(TaseCal.HamiltonianMatrix(spacialPos=SpacialPos,gap=gap))
+    #
+    #     d = val[8] - val[7]
+    #     if d < 0.01:
+    #         return {"Pos":SpacialPos,"gap":gap,"HamiVal":val.tolist()}
+    #     return None
+
 
     def HamiSingleScaner(self, SpacialPos=[],gap=1.0):
         TaseCal=Tase.Henlarge("topological")
         val = la.eigvalsh(TaseCal.HamiltonianMatrix(spacialPos=SpacialPos,gap=gap))
 
-        d = val[8] - val[7]
-        if d < 0.01:
-            return {"Pos":SpacialPos,"gap":gap,"HamiVal":val.tolist()}
+        return {"Pos":SpacialPos,"gap":gap,"HamiVal":val.tolist()}
         return None
+
 
     def _threadCallBack(self, threadID,totalCount):
 
@@ -155,7 +166,7 @@ class WireFinder(object):
 
         '''
         if not fname:
-            fname="Result_{}.json".format(datetime.datetime.now().strftime("%Y_%m_%d_%H_%m_%s"))
+            fname="./result/dHxy_Result_{}.json".format(datetime.datetime.now().strftime("%Y_%m_%d_%H_%m_%s"))
 
         with open(fname,"w") as fileio:
             json.dump(result,fileio)
@@ -282,7 +293,14 @@ class WireFinder(object):
 
 if __name__ == '__main__':
     test=WireFinder()
-    test.LoadRunConfig()
+    if len(sys.argv) == 2:
+        if sys.argv[1].endswith('.json'):
+            test.LoadRunConfig(fname=sys.argv[1])
+        else:
+            test.LoadRunConfig()
+    else:
+        test.LoadRunConfig()
+    # test.LoadRunConfig()
     test.MTHamiScanner()
 
 
