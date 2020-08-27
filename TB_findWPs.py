@@ -48,7 +48,7 @@ class WireFinder(object):
     kzScanMax = pi
 
     gapScanMin = 0
-    gapScanNBin = 50
+    gapScanNBin = 1
     gapScanMax = 200
 
     saveFname=""
@@ -64,7 +64,7 @@ class WireFinder(object):
                 chatInfor=infor.read()
             print(chatInfor)
 
-    def LoadRunConfig(self,fname="runConfig.json"):
+    def LoadRunConfig(self,fname="runConfig.json",gapmin = 0):
         if os.path.isfile(fname):
             with open(fname) as fileIO:
                 data=json.load(fileIO)
@@ -84,13 +84,13 @@ class WireFinder(object):
                     self.MaximumThread=int((data["runConfig"]["ncore"]))
                     logger.debug("Use User input CPU_COUNT :{}".format(self.MaximumThread))
 
-                self.gapScanMin = data["gapScan"]["min"]
+                self.gapScanMin = gapmin
                 self.gapScanMax = data["gapScan"]["max"]
                 self.gapScanNBin = data["gapScan"]["nbin"]
 
         else:
             raise IOError("Config file: {} CAN NOT FIND".format(fname))
-        # print(data)
+        # print(self.gapScanMin)
 
         # self.krScanMin=float(data["krScan"]["min"])
 
@@ -294,10 +294,7 @@ class WireFinder(object):
 if __name__ == '__main__':
     test=WireFinder()
     if len(sys.argv) == 2:
-        if sys.argv[1].endswith('.json'):
-            test.LoadRunConfig(fname=sys.argv[1])
-        else:
-            test.LoadRunConfig()
+        test.LoadRunConfig(gapmin=sys.argv[1])
     else:
         test.LoadRunConfig()
     # test.LoadRunConfig()
