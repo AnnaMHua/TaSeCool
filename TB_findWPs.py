@@ -166,7 +166,7 @@ class WireFinder(object):
 
         '''
         if not fname:
-            fname="./result/dHxy_Result_{}.json".format(datetime.datetime.now().strftime("%Y_%m_%d_%H_%m_%s"))
+            fname="./result/gap"+str(self.gapScanMin)+"dHxy_Result_{}.json".format(datetime.datetime.now().strftime("%Y_%m_%d_%H_%m_%s"))
 
         with open(fname,"w") as fileio:
             json.dump(result,fileio)
