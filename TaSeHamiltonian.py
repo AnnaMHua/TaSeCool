@@ -1,7 +1,7 @@
 import numpy as np
 from math import cos, sin, sqrt, pi
 from numpy import linalg as la
-
+from numba import jit, jitclass
 
 sx = np.array([[0,1],[1,0]])
 sy = np.array([[0,-1j],[1j,0]])
@@ -51,7 +51,6 @@ class Hamiltonian():
 
     def HamiltonianMatrix(self):
         pass
-
 
 class Henlarge(Hamiltonian):
     """

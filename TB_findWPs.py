@@ -36,19 +36,19 @@ class WireFinder(object):
 
     #Scan range
     krScanMin=0
-    krScanNBin=100
+    krScanNBin=50
     krScanMax = pi/sqrt(2)
 
     ksScanMin = 0
-    ksScanNBin = 100
+    ksScanNBin = 50
     ksScanMax = pi/sqrt(2)
 
     kzScanMin = 0
-    kzScanNBin = 100
+    kzScanNBin = 50
     kzScanMax = pi
 
     gapScanMin = 0
-    gapScanNBin = 1
+    gapScanNBin = 50
     gapScanMax = 200
 
     saveFname=""
@@ -64,7 +64,7 @@ class WireFinder(object):
                 chatInfor=infor.read()
             print(chatInfor)
 
-    def LoadRunConfig(self,fname="runConfig.json",gapmin = 0):
+    def LoadRunConfig(self,fname="runConfig.json"):
         if os.path.isfile(fname):
             with open(fname) as fileIO:
                 data=json.load(fileIO)
@@ -83,10 +83,10 @@ class WireFinder(object):
                 else:
                     self.MaximumThread=int((data["runConfig"]["ncore"]))
                     logger.debug("Use User input CPU_COUNT :{}".format(self.MaximumThread))
-
-                self.gapScanMin = gapmin
-                self.gapScanMax = data["gapScan"]["max"]
-                self.gapScanNBin = data["gapScan"]["nbin"]
+                #
+                # self.gapScanMin = data["gapScan"]["min"]
+                # self.gapScanMax = data["gapScan"]["max"]
+                # self.gapScanNBin = data["gapScan"]["nbin"]
 
         else:
             raise IOError("Config file: {} CAN NOT FIND".format(fname))
@@ -105,11 +105,10 @@ class WireFinder(object):
 
 
     def HamiSingleScaner(self, SpacialPos=[],gap=1.0):
-        TaseCal=Tase.Henlarge("topological")
+        TaseCal=Tase.Henlarge("trivial")
         val = la.eigvalsh(TaseCal.HamiltonianMatrix(spacialPos=SpacialPos,gap=gap))
 
         return {"Pos":SpacialPos,"gap":gap,"HamiVal":val.tolist()}
-        return None
 
 
     def _threadCallBack(self, threadID,totalCount):
@@ -166,7 +165,7 @@ class WireFinder(object):
 
         '''
         if not fname:
-            fname="./result/gap"+str(self.gapScanMin)+"dHxy_Result_{}.json".format(datetime.datetime.now().strftime("%Y_%m_%d_%H_%m_%s"))
+            fname="./result/dHtri_Result_{}.json".format(datetime.datetime.now().strftime("%Y_%m_%d_%H_%m_%s"))
 
         with open(fname,"w") as fileio:
             json.dump(result,fileio)
@@ -293,11 +292,8 @@ class WireFinder(object):
 
 if __name__ == '__main__':
     test=WireFinder()
-    if len(sys.argv) == 2:
-        test.LoadRunConfig(gapmin=sys.argv[1])
-    else:
-        test.LoadRunConfig()
-    # test.LoadRunConfig()
+    # test.LoadRunConfig(gapmin=int(sys.argv[1]))
+    test.LoadRunConfig()
     test.MTHamiScanner()
 
 

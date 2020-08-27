@@ -14,10 +14,12 @@ with open("./result/Result_2020_08_26_14_08_1598468252.json") as f:
     dic = {}
     gapArray=[]
     for key, value in data.items():
-        dic[value["gap"]] = []
-    for key, value in data.items():
-        dic[value["gap"]].append(value["Pos"])
-    gapArray = list(dic.keys())
+    #     dic[value["gap"]] = []
+    # for key, value in data.items():
+    #     dic[value["gap"]].append(value["Pos"])
+    # gapArray = list(dic.keys())
+        if value["gap"][8] - value["gap"][7] < 10:
+
 
 
 def update_graph(gap):
