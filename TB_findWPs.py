@@ -37,11 +37,11 @@ class WireFinder(object):
     #Scan range
     krScanMin=0
     krScanNBin=50
-    krScanMax = pi/sqrt(2)
+    krScanMax = pi
 
     ksScanMin = 0
     ksScanNBin = 50
-    ksScanMax = pi/sqrt(2)
+    ksScanMax = pi
 
     kzScanMin = 0
     kzScanNBin = 50
@@ -105,8 +105,9 @@ class WireFinder(object):
 
 
     def HamiSingleScaner(self, SpacialPos=[],gap=1.0):
-        TaseCal=Tase.Henlarge("trivial")
-        val = la.eigvalsh(TaseCal.HamiltonianMatrix(spacialPos=SpacialPos,gap=gap))
+        TaseCal=Tase.Horiginal()
+        [a,b,c] = [(SpacialPos[0] -SpacialPos[1])/sqrt(2),(SpacialPos[0] +SpacialPos[1])/sqrt(2),SpacialPos[2]]
+        val = la.eigvalsh(TaseCal.HamiltonianMatrix(spacialPos=[a, b,  c],gap=gap))
 
         return {"Pos":SpacialPos,"gap":gap,"HamiVal":val.tolist()}
 
@@ -165,7 +166,7 @@ class WireFinder(object):
 
         '''
         if not fname:
-            fname="./result/dHtri_Result_{}.json".format(datetime.datetime.now().strftime("%Y_%m_%d_%H_%m_%s"))
+            fname="./result/dHz_Result_{}.json".format(datetime.datetime.now().strftime("%Y_%m_%d_%H_%m_%s"))
 
         with open(fname,"w") as fileio:
             json.dump(result,fileio)

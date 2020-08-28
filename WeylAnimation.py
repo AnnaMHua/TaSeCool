@@ -9,17 +9,23 @@ y = [0]
 z = [0]
 
 
-with open("./result/Result_2020_08_26_14_08_1598468252.json") as f:
-    data = json.load(f)
-    dic = {}
-    gapArray=[]
-    for key, value in data.items():
+with open("./result/dHz_Result_2020_08_27_13_08_1598548338.json") as f:
     #     dic[value["gap"]] = []
     # for key, value in data.items():
     #     dic[value["gap"]].append(value["Pos"])
     # gapArray = list(dic.keys())
-        if value["gap"][8] - value["gap"][7] < 10:
 
+    data = json.load(f)
+    dic = {}
+    d=10
+    gapArray=[]
+    for key, value in data.items():
+        if value["HamiVal"][4] - value["HamiVal"][3] < d:
+            if value["gap"] in dic.keys():
+                dic[value["gap"]].append(value["Pos"])
+            else:
+                dic[value["gap"]] = [value["Pos"]]
+    gapArray = list(dic.keys())
 
 
 def update_graph(gap):
@@ -42,4 +48,4 @@ graph, = ax.plot(x, y, z, linestyle="", marker="o")
 
 
 anim =FuncAnimation(fig, update_graph, gapArray,interval=1, blit=False )
-plt.show()
+anim.save("dHzWeyl3Danim_d="+str(d)+".mp4")
