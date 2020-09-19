@@ -2,10 +2,10 @@
 
 Package used for Calculate the Hamiltonian function and find the wire point.
 
-1. [MultiThread Wire point Searching](#search-for-the-wire-point-in-concurrent-way-tb_findwpspy)
+1. [MultiThread Weyl points Searching](#search-for-the-Weyl-points-in-concurrent-way-tb_findwpspy)
 
 # Usage 
-### 1. Search for the Weyl Point in concurrent way TB_findWPs.py
+### 1. Search for the Weyl Points in concurrent way TB_findWPs.py
 
 #### set up the configure file 
 ```json5
