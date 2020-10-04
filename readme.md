@@ -1,6 +1,6 @@
 # TaseCool
 
-Package used for Calculate the Hamiltonian function and find the wire point.
+Package used for Calculate the Hamiltonian function and find the Weyl point.
 
 1. [MultiThread Weyl points Searching](#search-for-the-Weyl-points-in-concurrent-way-tb_findwpspy)
 
